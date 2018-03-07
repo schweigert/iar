@@ -1,0 +1,17 @@
+Agente: Jogo de Damas
+Medida de Desempenho: Capturar o maior número de peças do inimigo
+Ambiente: Tabuleiro
+Sensores: Casas
+Atuadores: Mover peças
+
+Agente: Taxi automatizado
+Medida de Desempenho: Levar passageiros pelo trajeto mais eficiente (Segurança x Custo)
+Ambiente: Mapa
+Sensores: Reconhecimento de ambiente e posicionamento
+Atuadores: Direção do carro
+
+Agente: Jogo de Palavras cruzadas
+Medida de desempenho: Acertar o maior número de palavras possíveis
+Ambiente: Tabuleiro de Palavras Cruzadas
+Sensores: Reconhecedor de palavras e posições vazias
+Atuadores: Escrever nas posições vazias
