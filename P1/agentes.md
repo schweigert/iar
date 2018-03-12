@@ -53,3 +53,20 @@ Atuadores: Aumentar ou diminuir a temperatura
  - Dinâmico
  - Contínuo
  - Único agente
+
+------
+
+Agente: Formiga
+Ambiente: Colônia com várias formigas mortas e vivas
+Medida de Desempenho: Espaço vazio observável
+Sensores: Sua região em volta com um raio de distância
+Atuadores: Caminhar, pegar e soltar objeto
+ - Parcialmente
+ - Estocástico
+ - Sequencial
+ - Dinâmico
+ - Contínuo
+ - Multi-agente
+
+
+
