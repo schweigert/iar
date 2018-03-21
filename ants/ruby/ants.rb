@@ -286,10 +286,10 @@ class Map
 end
 
 # Start a new map
-map = Map.new(length: 20, height: 50, ants: 30, dead_ants: 50, ants_per_thread: 5)
+map = Map.new(length: 50, height: 50, ants: 50, dead_ants: 500, ants_per_thread: 5)
 
 frames = 300_000
-step = 5000
+step = 1
 
 5_000_000.step(0, -step) do |n|
   system 'clear'
