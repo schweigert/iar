@@ -1,19 +1,24 @@
 package main
 
 import (
+  "os"
   "fmt"
   "sync"
   "time"
+  "image"
+  "strconv"
   "math/rand"
+  "image/png"
+  "image/color"
 )
 
 const (
-  CONST_R = 5
+  CONST_R = 10
   CONST_GROUPS = 2
-  CONST_MAP_H = 30
-  CONST_MAP_L = 50
+  CONST_MAP_H = 100
+  CONST_MAP_L = 100
   CONST_ANTS = 50
-  CONST_DEAD_ANTS = 500
+  CONST_DEAD_ANTS = 5000
 )
 
 func create_random() *rand.Rand {
@@ -244,6 +249,34 @@ func (m* Map) Finish() {
   }
 }
 
+func (m* Map) Drawn(iteration int) {
+  img := image.NewRGBA(image.Rect(0, 0, m.l * 8, m.h * 8))
+
+  for i := range m.environment {
+    for j := range m.environment[i] {
+      if m.environment[i][j] == nil {
+        for h := 0; h < 8; h++ {
+          for l := 0; l < 8; l++ {
+            img.Set(i*8 +h, j*8 +l, color.RGBA{0, 0, 0, 255})
+          }
+        }
+      } else {
+        for h := 0; h < 8; h++ {
+          for l := 0; l < 8; l++ {
+            img.Set(i*8 +h, j*8 +l, color.RGBA{255, 0, 0, 255})
+          }
+        }
+
+      }
+    }
+  }
+
+  f, _ := os.OpenFile(strconv.Itoa(CONST_R) + "-" + strconv.Itoa(iteration + 1) + ".png", os.O_WRONLY|os.O_CREATE, 0600)
+  defer f.Close()
+
+  png.Encode(f, img)
+}
+
 func (m* Map) Print() {
   // cmd := exec.Command("clear")
   // cmd.Stdout = os.Stdout
@@ -291,16 +324,16 @@ func NewMap(l, h int) *Map {
 }
 
 func main() {
-  fmt.Println("Booting...")
-
   m := NewMap(CONST_MAP_L, CONST_MAP_H)
   m.CreateDeadAnts(CONST_DEAD_ANTS)
   m.CreateAnts(CONST_ANTS)
-  m.Print()
+
+  m.Drawn(-1)
 
   for i := 0; i < 5; i++ {
     m.ParallelInterate(100000, CONST_GROUPS)
-    m.Print()
+    m.Drawn(i)
   }
   m.Finish()
+  m.Drawn(5)
 }
