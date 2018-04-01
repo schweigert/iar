@@ -142,95 +142,98 @@ Para funcionamento geral, executamos algumas threads onde cada thread manipula u
 
 Utilizando $R=1$ foram obtidos as amostras (\ref{fig:r1}), a qual demonstram o agrupamento funcional mesmo pouca informação global para cada agente. Em comparativo a amostra obtida com $R=5$ (\ref{fig:r5}), as bordas são bem mais definidas no teste executado com $R=1$, porém em contra partida os grupos são mais definidos com $R=5$.
 
-\begin{figure}[h!] 
+\begin{figure}[h!]
   \begin{minipage}[b]{0.5\linewidth}
-    \label{fig:r1} 
+    \label{fig:r1}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-0.png} 
-    \caption{Estado inicial com R=1} 
+    \includegraphics[width=.8\linewidth]{resultados/1-0.png}
+    \caption{Estado inicial com R=1}
     \vspace{4ex}
   \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-1.png} 
-    \caption{100000 passos com R=1} 
+    \includegraphics[width=.8\linewidth]{resultados/1-1.png}
+    \caption{100000 passos com R=1}
     \vspace{4ex}
-  \end{minipage} 
+  \end{minipage}
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-3.png} 
-    \caption{300000 passos com R=1} 
+    \includegraphics[width=.8\linewidth]{resultados/1-3.png}
+    \caption{300000 passos com R=1}
     \vspace{4ex}
-  \end{minipage}%% 
+  \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-6.png} 
-    \caption{500000 passos com R=1} 
+    \includegraphics[width=.8\linewidth]{resultados/1-6.png}
+    \caption{500000 passos com R=1}
     \vspace{4ex}
-  \end{minipage} 
+  \end{minipage}
 \end{figure}
 
 
 \begin{figure}[h!]
   \begin{minipage}[b]{0.5\linewidth}
-    \label{fig:r5} 
+    \label{fig:r5}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-0.png} 
-    \caption{Estado inicial com R=5} 
+    \includegraphics[width=.8\linewidth]{resultados/5-0.png}
+    \caption{Estado inicial com R=5}
     \vspace{4ex}
   \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-1.png} 
-    \caption{100000 passos com R=5} 
+    \includegraphics[width=.8\linewidth]{resultados/5-1.png}
+    \caption{100000 passos com R=5}
     \vspace{4ex}
-  \end{minipage} 
+  \end{minipage}
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-3.png} 
-    \caption{300000 passos com R=5} 
+    \includegraphics[width=.8\linewidth]{resultados/5-3.png}
+    \caption{300000 passos com R=5}
     \vspace{4ex}
-  \end{minipage}%% 
+  \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-6.png} 
-    \caption{500000 passos com R=5} 
+    \includegraphics[width=.8\linewidth]{resultados/5-6.png}
+    \caption{500000 passos com R=5}
     \vspace{4ex}
-  \end{minipage} 
+  \end{minipage}
 \end{figure}
 
 Podemos ver um agravante na fragmentação das bordas dos grupos utilizando raio 10 (\ref{fig:r10}). Além disso, podemos perceber que o agrupamento nos primeiros passos, entre 0 e 100000 passos é muito mais custoso a ocorrer comparado aos raios menores.
 
 
-\begin{figure}[h!] 
+\begin{figure}[h!]
   \begin{minipage}[b]{0.5\linewidth}
     \label{fig:r10}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-0.png} 
-    \caption{Estado inicial com R=10} 
+    \includegraphics[width=.8\linewidth]{resultados/10-0.png}
+    \caption{Estado inicial com R=10}
     \vspace{4ex}
   \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-1.png} 
-    \caption{100000 passos com R=10} 
+    \includegraphics[width=.8\linewidth]{resultados/10-1.png}
+    \caption{100000 passos com R=10}
     \vspace{4ex}
-  \end{minipage} 
+  \end{minipage}
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-3.png} 
-    \caption{300000 passos com R=10} 
+    \includegraphics[width=.8\linewidth]{resultados/10-3.png}
+    \caption{300000 passos com R=10}
     \vspace{4ex}
-  \end{minipage}%% 
+  \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-6.png} 
-    \caption{500000 passos com R=10} 
+    \includegraphics[width=.8\linewidth]{resultados/10-6.png}
+    \caption{500000 passos com R=10}
     \vspace{4ex}
-  \end{minipage} 
+  \end{minipage}
 \end{figure}
 
 Podemos assumir então, que quanto maior o raio, mais disperso será as bordas dos grupos. Isso é dado pela quebra de sistemas emergentes, visito que cada agente está levando em conta uma região muito grande ao invés de se preocupar com poucas informações.
+
+Outra variável que  é impactada com a alteração do raio de percepção é o tempo de execução.
+%
 
 \begin{thebibliography}{00}
 \bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
