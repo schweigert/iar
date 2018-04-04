@@ -55,6 +55,7 @@ func (d1 *DeadAnt) Distancy(d2 *DeadAnt) float64 {
 type Ant struct {
   l, h, r int
   density, max_density float32
+  function_f float64
   random *rand.Rand
   environment *Map
   dead_ant *DeadAnt
@@ -85,6 +86,10 @@ func (a *Ant) Garbage() {
       a.dead_ant = a.environment.GetDeadAnt(a.l, a.h)
     }
   }
+}
+
+func (a *Ant) UpdateFunctionF() {
+  a.function_f = a.environment.FunctionF(a.l, a.h, a.r, a.dead_ant)
 }
 
 func (a *Ant) IsGarbagging() bool {
@@ -172,6 +177,52 @@ func (m *Map) GetDeadAnt(l, h int) *DeadAnt {
   m.environment[h][l] = nil
   m.mutex.Unlock()
   return ant
+}
+
+func (m *Map) FunctionF(l, h, r int, ant *DeadAnt) float64 {
+  ants := 0
+  var sum float64
+
+  sum = 0.0
+  var hehe bool
+
+  hehe = false
+
+  if ant == nil {
+    ant = m.GetDeadAnt(l, h)
+    hehe = true
+  }
+
+  if ant == nil {
+    return 0.0
+  }
+
+  for i := -r; i < r; i++ {
+    for j := -r; j < r; j++ {
+      other_ant := m.GetDeadAnt(l + i, h + j);
+      if other_ant == nil {
+        continue
+      }
+
+      ants++
+
+      sum += 1 - (ant.Distancy(other_ant)/7.5)
+
+      m.PutDeadAnt(l + i, h + j, other_ant)
+    }
+  }
+
+  ret := (1/float64(ants * ants)) * sum
+
+  if hehe {
+    m.PutDeadAnt(l, h, ant)
+  }
+
+  if ret <= 0 {
+    return 0.0
+  }
+
+  return ret
 }
 
 func (m *Map) has_dead_ant_at(l, h int) bool {
