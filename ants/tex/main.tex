@@ -11,6 +11,7 @@
 \usepackage{textcomp}
 \usepackage{listings}
 \usepackage{graphicx}
+\usepackage{float}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -46,28 +47,56 @@ formigas, inteligência artificial, modelagem matemática, programação concorr
 
 A busca por simular efeitos naturais que otimizem problemas em sistemas computacionais tem grandes vantagens comparados a algoritmos deterministas e objetivos, vistos que podemos dar sentido a resultados obtidos da natureza a qual algoritmos puramente matemáticos custam fazer qualquer sentido. Essa propriedade principal é aplicada ao algoritmo de aglomeração de formigas mortas por um grupo de formigas vivas.
 
-O efeito de agrupamento de um ambiente poluído por formigas mortas foi descrito por XXX, a qual tem um sistema matemático pode descrever a movimentação de tais agentes.
+O efeito de agrupamento de um ambiente poluído por formigas mortas é relatado por Mohamed Jafar~\cite{b1}, a qual tem um sistema matemático pode descrever a movimentação de tais agentes~\cite{b2}.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=2.5in]{clusters.png}
 \caption{\textit{Clusters} de formigas mortas.}
 \label{fig_sim}
+
+Fonte: O. A. Mohamed Jafar, R. Sivakumar \cite{b1}
 \end{figure}
 
-Tal comportamento é conhecido como agrupamento, na qual esse efeito pode ser utilizado para otimizar problemas de agrupamento, limpeza ou desfragmentação de ambientes na qual os dados manipulados sejam homogêneos.
+Tal comportamento é conhecido como agrupamento, na qual esse efeito pode ser utilizado para otimizar problemas de agrupamento, limpeza ou desfragmentação de ambientes na qual os dados manipulados sejam homogêneos \cite{b1}.
 
 Este artigo será dividido em algumas seções:
 
 \begin{itemize}
+    \item \textbf{Caracterização do problema}: Descreve a análise das características do problema e medidas de desempenho.
     \item \textbf{Modelagem matemática}: Descreve as ações e o modelo matemático a qual os agentes podem realizar.
     \item \textbf{Resultados obtidos}: Amostras estado de execução obtidos da modelagem descrita, assim como métricas de recursos utilizados.
     \item \textbf{Análise sobre resultados obtidos}: Análise sobre estados obtidos e modelagem descrita.
 \end{itemize}
 
+\section{Caracterização do problema}
+
+Para melhor entendimento do problema, faz necessário classificar o problema de agrupamento de formigas mortas. Para tal, precisamos definir quais suas características\cite{b1}.
+
+A sua classificação segue o determinado padrão:
+
+\begin{itemize}
+    \item \textbf{Ambiente}: Matriz de formigas mortas e vivas.
+    \item \textbf{Agente}: Formiga viva.
+    \item \textbf{Sensores}: Analisar região em torno de sí própria por um raio $R$.
+    \item \textbf{Atuadores}: Pegar e soltar formigas mortas.
+    \item \textbf{Desempenho}: Quantidade de grupos formados.
+\end{itemize}
+
+Algumas características dessa simulação são:
+
+\begin{itemize}
+    \item Parcialmente observável;
+    \item Estocástico;
+    \item Sequencial;
+    \item Dinâmico;
+    \item Discreto;
+    \item Multiagente;
+\end{itemize}
+
 \section{Modelagem matemática}
 
-O ambiente onde ocorrerá a simulação é desenhado como uma matriz. A fim de descrever matematicamente o comportamento de agrupamento de formigas mortas em tal ambiente, precisamos tomar alguns conceitos de como o fenômeno ocorre:
+O ambiente onde ocorrerá a simulação é desenhado como uma matriz esférica, ou seja, conectada pelas pontas. A fim de descrever matematicamente o comportamento de agrupamento de formigas mortas em tal ambiente, precisamos tomar alguns conceitos de como o fenômeno ocorre\cite{b1}:
 
 \begin{itemize}
     \item Sem comunicação entre agentes: As formigas não utilizam nenhum método de comunicação entre outras formigas vivas para realizar este comportamento.
@@ -112,7 +141,7 @@ Para este modelo funcionar, precisamos de um raio de visão ($R$), a qual signif
 \label{fig:raio}
 \end{figure}
 
-O fator de decisão principal para pegar e soltar uma formiga morta está em torno da variável $D$ a qual é definida pela densidade local de cada formiga em torno do raio $R$ de cada formiga.
+O fator de decisão principal para pegar e soltar uma formiga morta está em torno da variável $D$ a qual é definida pela densidade local de cada formiga em torno do raio $R$ de cada formiga \cite{b2}.
 
 
 $D = \sum_{i=-R}^{R}\sum_{j=-R}^{R}A(i,j)$, onde
@@ -124,7 +153,7 @@ $A(i,j) =
 \end{array}
 $
 
-A abordagem desta simulação utiliza uma memória para cada formiga onde é armazenado qual a maior densidade ($D_{max}$) a qual esta formiga encontrou em sua vivência com o ambiente de testes. Essa informação é útil para normalizar dentro de um valor real [0, 1] a variável de Densidade relativa ($D_{rel}$). A fórmula de normalização é dada por:
+A abordagem desta simulação utiliza uma memória para cada formiga onde é armazenado qual a maior densidade ($D_{max}$) a qual esta formiga encontrou em sua vivência com o ambiente de testes. Essa informação é útil para normalizar dentro de um valor real [0, 1] a variável de Densidade relativa ($D_{rel}$). A fórmula de normalização é dada por\cite{b2}:
 
 $
     D_{rel} = \frac{D}{D_{max}}
@@ -142,107 +171,182 @@ Para funcionamento geral, executamos algumas threads onde cada thread manipula u
 
 Utilizando $R=1$ foram obtidos as amostras (\ref{fig:r1}), a qual demonstram o agrupamento funcional mesmo pouca informação global para cada agente. Em comparativo a amostra obtida com $R=5$ (\ref{fig:r5}), as bordas são bem mais definidas no teste executado com $R=1$, porém em contra partida os grupos são mais definidos com $R=5$.
 
-\begin{figure}[h!]
+\begin{figure}[H] 
   \begin{minipage}[b]{0.5\linewidth}
-    \label{fig:r1}
+    \label{fig:r1} 
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-0.png}
-    \caption{Estado inicial com R=1}
+    \includegraphics[width=.8\linewidth]{resultados/1-0.png} 
+    \caption{Estado inicial com R=1} 
     \vspace{4ex}
   \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-1.png}
-    \caption{100000 passos com R=1}
+    \includegraphics[width=.8\linewidth]{resultados/1-1.png} 
+    \caption{100000 passos com R=1} 
     \vspace{4ex}
-  \end{minipage}
+  \end{minipage} 
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-3.png}
-    \caption{300000 passos com R=1}
+    \includegraphics[width=.8\linewidth]{resultados/1-3.png} 
+    \caption{300000 passos com R=1} 
     \vspace{4ex}
-  \end{minipage}%%
+  \end{minipage}%% 
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/1-6.png}
-    \caption{500000 passos com R=1}
+    \includegraphics[width=.8\linewidth]{resultados/1-6.png} 
+    \caption{500000 passos com R=1} 
     \vspace{4ex}
-  \end{minipage}
+  \end{minipage} 
 \end{figure}
 
 
-\begin{figure}[h!]
+A regra de aglomeração utilizando $R=1$ torna as bordas bem delimitadas e propicia a criação de grupos menores. O resultado final cria caminhos pequenos e tortuosos utilizando $R=1$ (figura \ref{fig:r1}.
+
+\begin{figure}[H]
   \begin{minipage}[b]{0.5\linewidth}
-    \label{fig:r5}
+    \label{fig:r5} 
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-0.png}
-    \caption{Estado inicial com R=5}
+    \includegraphics[width=.8\linewidth]{resultados/5-0.png} 
+    \caption{Estado inicial com R=5} 
     \vspace{4ex}
   \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-1.png}
-    \caption{100000 passos com R=5}
+    \includegraphics[width=.8\linewidth]{resultados/5-1.png} 
+    \caption{100000 passos com R=5} 
     \vspace{4ex}
-  \end{minipage}
+  \end{minipage} 
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-3.png}
-    \caption{300000 passos com R=5}
+    \includegraphics[width=.8\linewidth]{resultados/5-3.png} 
+    \caption{300000 passos com R=5} 
     \vspace{4ex}
-  \end{minipage}%%
+  \end{minipage}%% 
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/5-6.png}
-    \caption{500000 passos com R=5}
+    \includegraphics[width=.8\linewidth]{resultados/5-6.png} 
+    \caption{500000 passos com R=5} 
     \vspace{4ex}
-  \end{minipage}
+  \end{minipage} 
 \end{figure}
 
-Podemos ver um agravante na fragmentação das bordas dos grupos utilizando raio 10 (\ref{fig:r10}). Além disso, podemos perceber que o agrupamento nos primeiros passos, entre 0 e 100000 passos é muito mais custoso a ocorrer comparado aos raios menores.
+A regra de aglomeração utilizando $R=5$ (figura \ref{fig:r5}) proporciona uma maior fragmentação dos grupos, mas ainda geram grupos bem definidos. Podemos perceber que a quantia de passos para as formigas formar grupos definidos é maior comparado ao teste de $R=1$ (figura \ref{fig:r1}).
 
-
-\begin{figure}[h!]
+\begin{figure}[H] 
   \begin{minipage}[b]{0.5\linewidth}
     \label{fig:r10}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-0.png}
-    \caption{Estado inicial com R=10}
+    \includegraphics[width=.8\linewidth]{resultados/10-0.png} 
+    \caption{Estado inicial com R=10} 
     \vspace{4ex}
   \end{minipage}%%
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-1.png}
-    \caption{100000 passos com R=10}
+    \includegraphics[width=.8\linewidth]{resultados/10-1.png} 
+    \caption{100000 passos com R=10} 
     \vspace{4ex}
-  \end{minipage}
+  \end{minipage} 
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-3.png}
-    \caption{300000 passos com R=10}
+    \includegraphics[width=.8\linewidth]{resultados/10-3.png} 
+    \caption{300000 passos com R=10} 
     \vspace{4ex}
-  \end{minipage}%%
+  \end{minipage}%% 
   \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=.8\linewidth]{resultados/10-6.png}
-    \caption{500000 passos com R=10}
+    \includegraphics[width=.8\linewidth]{resultados/10-6.png} 
+    \caption{500000 passos com R=10} 
     \vspace{4ex}
-  \end{minipage}
+  \end{minipage} 
 \end{figure}
 
-Podemos assumir então, que quanto maior o raio, mais disperso será as bordas dos grupos. Isso é dado pela quebra de sistemas emergentes, visito que cada agente está levando em conta uma região muito grande ao invés de se preocupar com poucas informações.
 
-Outra variável que  é impactada com a alteração do raio de percepção é o tempo de execução.
-%
+Podemos ver um agravante na fragmentação das bordas dos grupos utilizando $R=10$ (\ref{fig:r10}). Além disso, podemos perceber que o agrupamento nos primeiros passos, entre 0 e 100000 passos é muito mais custoso a ocorrer comparado aos raios menores.
+
+\begin{figure}[h]
+  Comparativo entre estados finais com raios diferentes:
+  
+
+  \begin{minipage}[b]{0.5\linewidth}
+    \label{fig:comp}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/1-6.png} 
+    \caption{500.000 passos com $R=1$} 
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/5-6.png} 
+    \caption{500.000 passos com $R=5$} 
+    \vspace{4ex}
+  \end{minipage} 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/10-6.png} 
+    \caption{500.000 passos com $R=10$} 
+    \vspace{4ex}
+  \end{minipage}%% 
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Tabela de tempo de execução}
+\label{table}
+\begin{tabular}{|l|l|l|l|}
+\hline
+                            & R = 1  & R = 5   & R = 10    \\ \hline
+Tempo médio de 10 execuções & 4.442s & 44.869s & 2m 4.401s \\ \hline
+variação                    & 0.5\%  & 0.9\%   & 1.1\%     \\ \hline
+\end{tabular}
+\end{table}
+
+Podemos assumir então, que quanto maior o raio, mais disperso será as bordas dos grupos. Isso é dado pela quebra de sistemas emergentes, visito que cada agente está levando em conta uma região muito grande ao invés de se preocupar com poucas informações. Essa comparação final é explicitada na figura~\ref{fig:comp}.
+
+Além do resultado final não ser satisfatório, o tempo de execução não é bom quanto o esperado, comparando o resultado de raios menores com raios maiores. A complexidade $O(r²)$ para verificação da existência de formiga morta em uma determinada casa da matriz dificulta o tempo de execução quanto maior seja o raio das formigas vivas. 
+
+
+\section{Conclusão}
+
+Podemos concluir que, em sistemas emergentes, passar mais informação a ponto de quebrar a ideia de sistemas emergentes acaba dificultando a convergência do sistema.
+
+\begin{figure}[H] 
+  \begin{minipage}[b]{0.5\linewidth}
+    \label{fig:r_rand}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/5-0-rand.png} 
+    \caption{Estado inicial com $R=rand(5)+1$} 
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/5-1-rand.png} 
+    \caption{100000 passos com $R=rand(5)+1$} 
+    \vspace{4ex}
+  \end{minipage} 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/5-3-rand.png} 
+    \caption{300000 passos com $R=rand(5)+1$} 
+    \vspace{4ex}
+  \end{minipage}%% 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/5-6-rand.png} 
+    \caption{500000 passos com $R=rand(5)+1$} 
+    \vspace{4ex}
+  \end{minipage} 
+\end{figure}
+
+Percebe-se que a variação $R\ni[1,5]$ é um bom valor. O resultado obtido, com o raio variando dentro deste limite, é um bom resultado, conforme visto na figura~\ref{fig:r_rand}. Percebe-se que com essas configurações é criado grupos maiores, comparado aos grupos criados com $R=5$. A grande diferença é a fragmentação dos grupos nas bordas, que diminui por conta das formigas de menor raio.
+
+A pesar dessa abordagem ser boa para formar grupos maiores e com uma fragmentação menor, faz necessário executar mais passos para remover a grande maioria das formigas espalhadas em torno dos grupos.
+
+O tempo de execução utilizando tal abordagem de formigas homogêneas, utilizando 1.000.000 passos executa em 41.549s, com variação de 1.7\%, sendo uma boa forma de melhorar o comportamento com essa modelagem matemática.
 
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
+\bibitem{b1} O. A. Mohamed Jafar, R. Sivakumar, ``Ant-based Clustering Algorithms: A Brief 
+Survey'' Phil. International Journal of Computer Theory and Engineering, vol. 2, No. 5, October, 2010.
+\bibitem{b2} J. Handl, J. Knowles, M. Dorigo, ``Ant-based clustering: a comparative study of its relative performance with respect to k-means, average link and 1d-som``, Citeseer, 2003, pp.204--213.
 \end{thebibliography}
 
 \end{document}
