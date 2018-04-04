@@ -13,7 +13,7 @@ import (
 )
 
 const (
-  CONST_R = 10
+  CONST_R = 5
   CONST_GROUPS = 2
   CONST_MAP_H = 100
   CONST_MAP_L = 100
@@ -87,12 +87,13 @@ func (a *Ant) Walk() {
 }
 
 func NewAnt(l, h int, env *Map) *Ant {
+  random := create_random()
   ant := &Ant{
-    random: create_random(),
+    random: random,
     mutex: &sync.Mutex{},
     environment: env,
     dead_ant: nil,
-    r : CONST_R,
+    r : random.Intn(CONST_R) + 1,
   }
 
   ant.l = ant.random.Intn(l)
@@ -271,7 +272,7 @@ func (m* Map) Drawn(iteration int) {
     }
   }
 
-  f, _ := os.OpenFile(strconv.Itoa(CONST_R) + "-" + strconv.Itoa(iteration + 1) + ".png", os.O_WRONLY|os.O_CREATE, 0600)
+  f, _ := os.OpenFile(strconv.Itoa(CONST_R) + "-" + strconv.Itoa(iteration + 1) + "-rand.png", os.O_WRONLY|os.O_CREATE, 0600)
   defer f.Close()
 
   png.Encode(f, img)
