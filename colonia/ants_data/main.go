@@ -2,6 +2,7 @@ package main
 
 import (
   "os"
+  "os/exec"
   "fmt"
   "sync"
   "time"
@@ -13,13 +14,35 @@ import (
   "image/color"
 )
 
+// Three:
+// CONST_ALPHA = 1.2
+// CONST_K1 = 0.3 // GET
+// CONST_K2 = 1.6 // PUT
+
+// Two:
+// CONST_ALPHA = 8
+// CONST_K1 = 1.0 // GET
+// CONST_K2 = 1.0 // PUT
+
 const (
-  CONST_R = 4
-  CONST_GROUPS = 2
-  CONST_MAP_H = 50
-  CONST_MAP_L = 50
-  CONST_ANTS = 5
+  CONST_R = 2
+  CONST_GROUPS = 3
+  CONST_MAP_H = 72
+  CONST_MAP_L = 72
+  CONST_ANTS = 50
   CONST_DEAD_ANTS = 400
+
+  CONST_COLORS = 4
+
+  CONST_ALPHA = 6.5
+  CONST_K1 = 0.75 // GET
+  CONST_K2 = 2.5 // PUT
+
+  CONST_FIGS = 3
+
+  CONST_DEBUG_ONE_ANT = false
+  CONST_DEBUG_FINISH = true
+  CONST_DEBUG_STEPS = false
 )
 
 func create_random() *rand.Rand {
@@ -37,7 +60,7 @@ func NewDeadAnt() *DeadAnt {
 
   var class int
 
-  fmt.Scanf("%f,%f", &data[0], &data[1])
+  fmt.Scanf("%f,%f,", &data[0], &data[1])
   fmt.Scanf("%d", &class)
 
   return &DeadAnt{ class: class, data: data }
@@ -63,11 +86,25 @@ type Ant struct {
 }
 
 func (a *Ant) Think() {
-  a.mutex.Lock()
-  a.UpdateDensity()
+  a.UpdateFunctionF()
   a.Garbage()
   a.Walk()
-  a.mutex.Unlock()
+  if CONST_DEBUG_ONE_ANT && a.function_f != 0.0{
+    a.PrintRadius()
+  }
+}
+
+func (a *Ant) PrintRadius() {
+  if a.GetProbability() >= 0 {
+    return
+  }
+  a.environment.PrintRadius(a.l, a.h, 10)
+  fmt.Println("F:\t", a.function_f)
+  fmt.Println("PUT:\t", a.PutProbability() * 100)
+  fmt.Println("GET:\t", a.GetProbability() * 100)
+  fmt.Println("GAR:\t", a.IsGarbagging())
+  fmt.Println("CLS:\t", string('a' - 1 + a.dead_ant.class))
+  fmt.Println("----------------")
 }
 
 func (a *Ant) GetDeadAnt() {
@@ -76,16 +113,27 @@ func (a *Ant) GetDeadAnt() {
 
 func (a *Ant) Garbage() {
   if a.IsGarbagging() {
-    if a.random.Float32() < a.RelativeDensity() {
+    if a.random.Float64() <= a.PutProbability() {
       if a.environment.PutDeadAnt(a.l, a.h, a.dead_ant) {
         a.dead_ant = nil
       }
     }
   } else {
-    if a.random.Float32() > a.RelativeDensity() * 1.3 {
+    if a.random.Float64() <= a.GetProbability() {
       a.dead_ant = a.environment.GetDeadAnt(a.l, a.h)
     }
   }
+}
+
+func (a *Ant) PutProbability() float64 {
+  value := (a.function_f / (CONST_K2 + a.function_f))
+  return (value * value)
+}
+
+func (a *Ant) GetProbability() float64 {
+  value := (CONST_K1/(CONST_K1 + a.function_f))
+
+  return (value * value)
 }
 
 func (a *Ant) UpdateFunctionF() {
@@ -112,8 +160,24 @@ func (a *Ant) UpdateDensity() {
 }
 
 func (a *Ant) Walk() {
-  a.l = (a.l + a.random.Intn(3) - 1) % a.environment.l
-  a.h = (a.h + a.random.Intn(3) - 1) % a.environment.h
+  a.l = (a.l + a.random.Intn(3) - 1)
+  a.h = (a.h + a.random.Intn(3) - 1)
+
+  if a.l == a.environment.l {
+    a.l = 0
+  }
+
+  if a.h == a.environment.h {
+    a.h = 0
+  }
+
+  if a.l < 0 {
+    a.l = a.environment.l -1
+  }
+
+  if a.h < 0  {
+    a.h = a.environment.h - 1
+  }
 }
 
 func NewAnt(l, h int, env *Map) *Ant {
@@ -150,14 +214,11 @@ func (m *Map) PutDeadAnt(l, h int, ant *DeadAnt) bool {
     h *= -1
   }
 
-  m.mutex.Lock()
   if m.environment[h][l] == nil {
     m.environment[h][l] = ant
-    m.mutex.Unlock()
     return true
   }
 
-  m.mutex.Unlock()
   return false
 }
 
@@ -172,11 +233,29 @@ func (m *Map) GetDeadAnt(l, h int) *DeadAnt {
     h *= -1
   }
 
-  m.mutex.Lock()
   ant := m.environment[h][l]
   m.environment[h][l] = nil
-  m.mutex.Unlock()
+
   return ant
+}
+
+func (m *Map) PrintRadius(l, h, r int) {
+  for i := -r; i <= r; i++ {
+    for j := -r; j <= r; j++ {
+      if i == 0 && j == 0 {
+        fmt.Print("@ ")
+      } else {
+        if m.has_dead_ant_at(i + l, j + h) {
+          dead := m.GetDeadAnt(i + l, j + h)
+          fmt.Print(string(dead.class + 'a' - 1)," ")
+          m.PutDeadAnt(i + l, j + h, dead)
+        } else {
+          fmt.Print("  ")
+        }
+      }
+    }
+    fmt.Println("")
+  }
 }
 
 func (m *Map) FunctionF(l, h, r int, ant *DeadAnt) float64 {
@@ -191,34 +270,38 @@ func (m *Map) FunctionF(l, h, r int, ant *DeadAnt) float64 {
   if ant == nil {
     ant = m.GetDeadAnt(l, h)
     hehe = true
+
+    if ant == nil {
+      return 0.0
+    }
   }
 
-  if ant == nil {
-    return 0.0
-  }
-
-  for i := -r; i < r; i++ {
-    for j := -r; j < r; j++ {
+  for i := -r; i <= r; i++ {
+    for j := -r; j <= r; j++ {
       other_ant := m.GetDeadAnt(l + i, h + j);
       if other_ant == nil {
         continue
       }
 
       ants++
-
-      sum += 1 - (ant.Distancy(other_ant)/7.5)
+      distancy := ant.Distancy(other_ant)
+      sum += 1 - (distancy/CONST_ALPHA)
 
       m.PutDeadAnt(l + i, h + j, other_ant)
     }
   }
 
-  ret := (1/float64(ants * ants)) * sum
-
   if hehe {
     m.PutDeadAnt(l, h, ant)
   }
 
-  if ret <= 0 {
+  if ants == 0 {
+    return 0.0
+  }
+
+  ret := (1.0/float64(r * r)) * sum
+
+  if ret <= 0.0 {
     return 0.0
   }
 
@@ -259,7 +342,17 @@ func (m *Map) density(l, h, r int) float32 {
 }
 
 func (m* Map) Interate(n int) {
+  ma := -1
   for i := 0; i < n; i++ {
+
+    if ((100 * i) / n) > ma {
+      ma = ((100 * i) / n)
+      fmt.Println("Walking... ", (100 * i) / n, "%")
+    }
+
+    if i % 1000 == 0 && CONST_DEBUG_STEPS {
+      m.Print()
+    }
     for a := range m.ants {
       m.ants[a].Think()
     }
@@ -319,7 +412,11 @@ func (m* Map) CreateDeadAnts(n int) {
 
 func (m* Map) Finish() {
   for i := range m.ants {
+    fmt.Println("Finishing ant: ", i)
     for ; m.ants[i].IsGarbagging(); {
+      if CONST_DEBUG_FINISH {
+        m.ants[i].PrintRadius()
+      }
       m.ants[i].Think()
     }
   }
@@ -339,7 +436,7 @@ func (m* Map) Drawn(iteration int) {
       } else {
         for h := 0; h < 8; h++ {
           for l := 0; l < 8; l++ {
-            img.Set(i*8 +h, j*8 +l, color.RGBA{uint8((255/4)* m.environment[i][j].class), 100, 100, 255})
+            img.Set(i*8 +h, j*8 +l, color.RGBA{uint8((255/CONST_COLORS)* m.environment[i][j].class), 100, 255, 255})
           }
         }
 
@@ -354,16 +451,16 @@ func (m* Map) Drawn(iteration int) {
 }
 
 func (m* Map) Print() {
-  // cmd := exec.Command("clear")
-  // cmd.Stdout = os.Stdout
-  // cmd.Run()
+  cmd := exec.Command("clear")
+  cmd.Stdout = os.Stdout
+  cmd.Run()
   fmt.Println("--------------------------------------------------")
   for i := range m.environment {
     for j := range m.environment[i] {
       if m.environment[i][j] == nil {
         fmt.Print(" ")
       } else {
-        fmt.Print("#")
+        fmt.Print(string(-1 + 'a' + m.environment[i][j].class))
       }
     }
     fmt.Print("\n")
@@ -404,12 +501,15 @@ func main() {
   m.CreateDeadAnts(CONST_DEAD_ANTS)
   m.CreateAnts(CONST_ANTS)
 
-  m.Drawn(-1)
 
-  for i := 0; i < 5; i++ {
-    m.ParallelInterate(100000, CONST_GROUPS)
+  m.Drawn(-1)
+  for i := 0; i < CONST_FIGS; i++ {
+  //for {
+    fmt.Println("Walking... ", 1000000 * i, " steps")
+    m.Interate(1000000)
+    m.Finish()
+    fmt.Println("Drawning")
     m.Drawn(i)
   }
-  m.Finish()
-  m.Drawn(5)
+  m.Print()
 }
