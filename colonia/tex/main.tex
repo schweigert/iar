@@ -60,13 +60,20 @@ Fonte: O. A. Mohamed Jafar, R. Sivakumar \cite{b1}
 
 Tal comportamento é conhecido como agrupamento, na qual esse efeito pode ser utilizado para otimizar problemas de agrupamento, limpeza ou desfragmentação de ambientes na qual os dados manipulados sejam homogêneos \cite{b1}.
 
-Este artigo será dividido em algumas seções:
+Este artigo será dividido em duas grandes partes. A primeira grande parte contempla o agrupamento de formigas mortas como simulação biológica. As seções que contemplam a primeira grande parte são:
 
 \begin{itemize}
     \item \textbf{Caracterização do problema}: Descreve a análise das características do problema e medidas de desempenho.
     \item \textbf{Modelagem matemática}: Descreve as ações e o modelo matemático a qual os agentes podem realizar.
     \item \textbf{Resultados obtidos}: Amostras estado de execução obtidos da modelagem descrita, assim como métricas de recursos utilizados.
     \item \textbf{Análise sobre resultados obtidos}: Análise sobre estados obtidos e modelagem descrita.
+\end{itemize}
+
+A segunda grande parte contempla a utilização desse fenômeno para agrupamento de dados utilizando critérios de diferença de dados. As suas seções são:
+
+\begin{itemize}
+    \item \textbf{Modelagem Matemática para dados}: Modelagem matemática para diferenciar dados favorecendo o agrupamento de dados.
+    \item \textbf{Simulação e resultados obtidos para dados}: A execução e resultados obtidos utilizando tal abordagem.
 \end{itemize}
 
 \section{Caracterização do problema}
@@ -305,9 +312,7 @@ Podemos assumir então, que quanto maior o raio, mais disperso será as bordas d
 Além do resultado final não ser satisfatório, o tempo de execução não é bom quanto o esperado, comparando o resultado de raios menores com raios maiores. A complexidade $O(r²)$ para verificação da existência de formiga morta em uma determinada casa da matriz dificulta o tempo de execução quanto maior seja o raio das formigas vivas. 
 
 
-\section{Conclusão}
-
-Podemos concluir que, em sistemas emergentes, passar mais informação a ponto de quebrar a ideia de sistemas emergentes acaba dificultando a convergência do sistema.
+\section{Análise dos resultados obtidos}
 
 \begin{figure}[H] 
   \begin{minipage}[b]{0.5\linewidth}
@@ -337,11 +342,145 @@ Podemos concluir que, em sistemas emergentes, passar mais informação a ponto d
   \end{minipage} 
 \end{figure}
 
+Podemos concluir que, em sistemas emergentes, passar mais informação a ponto de quebrar a ideia de sistemas emergentes acaba dificultando a convergência do sistema.
+
 Percebe-se que a variação $R\ni[1,5]$ é um bom valor. O resultado obtido, com o raio variando dentro deste limite, é um bom resultado, conforme visto na figura~\ref{fig:r_rand}. Percebe-se que com essas configurações é criado grupos maiores, comparado aos grupos criados com $R=5$. A grande diferença é a fragmentação dos grupos nas bordas, que diminui por conta das formigas de menor raio.
 
 A pesar dessa abordagem ser boa para formar grupos maiores e com uma fragmentação menor, faz necessário executar mais passos para remover a grande maioria das formigas espalhadas em torno dos grupos.
 
 O tempo de execução utilizando tal abordagem de formigas homogêneas, utilizando 1.000.000 passos executa em 41.549s, com variação de 1.7\%, sendo uma boa forma de melhorar o comportamento com essa modelagem matemática.
+
+Usando tal modelagem, alterando o método de probabilidade, é possível agrupar dados que são próximos. A modelagem matemática a seguir contemplará o desenvolvimento para agrupar dados pré-classificados.
+
+\section{Modelagem Matemática para Dados}
+
+Toda a modelagem matemática base é herdada da modelagem anteriormente descrita. A grande diferença entre modelagem anterior e a atualmente citada são os métodos para gerar a probabilidade para pegar e para soltar.
+
+A probabilidade para pegar e para soltar são dados pelas seguintes fórmulas~\cite{b2}:
+
+$Pp(i) = \frac{k1}{k1 + f(i)}$
+
+e
+
+$Ps(i) = \frac{1}{k1 + f(i)}$
+
+onde
+
+$f(i) =  \frac{1}{R^2}\sum_{i=-R}^{R}\sum_{j=-R}^{R}\frac{dif\_formiga(atual, i, j)}{alfa}$
+
+A diferença entre formigas é dada pela distância euclidiana:
+
+$\sqrt{\sum_{k=1}^{n}(d_1 - d_2)^2}$.
+
+Dada tais funções, aplicadas sobre o método de decisão descrito na modelagem matemática anterior, podemos analisar os dados obtidos na próxima seção.
+
+\section{Resultados obtidos utilizando dados}
+
+Usando tais equações, submetemos alguns testes para verificar a convergência do sistema. Usamos 3 banco de dados. O primeiro e segundo banco de dados contém 400 elementos, com 4 categorias bem definidas.
+O terceiro banco de dados contém 600 elementos, com 15 categorias.
+
+Todos os testes a seguir foram executados usando 20 agentes, em um mapa 75x75 esférico.
+
+\begin{figure}[H] 
+  \begin{minipage}[b]{0.5\linewidth}
+    \label{fig:dataset_one}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_one/2-0.png} 
+    \caption{Primeiro banco de dados. Estado inicial.} 
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_one/2-1.png} 
+    \caption{Primeiro banco de dados. 250.000 passos.} 
+    \vspace{4ex}
+  \end{minipage} 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_one/2-2.png} 
+    \caption{Primeiro banco de dados. 500.000 passos.} 
+    \vspace{4ex}
+  \end{minipage}%% 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_one/2-3.png} 
+    \caption{Primeiro banco de dados. 750.000 passos.} 
+    \vspace{4ex}
+  \end{minipage}
+\end{figure}
+
+O primeiro \textit{dataset} (figura~\ref{fig:dataset_one}) foi executado com as constantes $alpha = 6.5$, $k_1 = 0.75$, $k_2=2.5$ e $R=2$. Mesmo sendo o dataset mais básico, alguns elementos de outros conjuntos ficaram dentro dos conjuntos errados.
+
+
+\begin{figure}[H] 
+  \begin{minipage}[b]{0.5\linewidth}
+    \label{fig:dataset_two}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_two/2-0.png} 
+    \caption{Segundo banco de dados. Estado inicial.} 
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_two/2-1.png} 
+    \caption{Segundo banco de dados. 250.000 passos.} 
+    \vspace{4ex}
+  \end{minipage} 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_two/2-2.png} 
+    \caption{Segundo banco de dados. 500.000 passos.} 
+    \vspace{4ex}
+  \end{minipage}%% 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_two/2-3.png} 
+    \caption{Segundo banco de dados. 750.000 passos.} 
+    \vspace{4ex}
+  \end{minipage}
+\end{figure}
+
+No segundo \textit{dataset} (Figura~\ref{fig:dataset_two}), o resultado foi ótimo. Nenhum elemento estava dentro de um grupo errado.
+As constantes utilizadas foram $alpha=8$, $k_1 = 1$, $k_2 = 1$ e $R=2$.
+
+
+\begin{figure}[H] 
+  \begin{minipage}[b]{0.5\linewidth}
+    \label{fig:dataset_three}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_three/2-0.png} 
+    \caption{Terceiro banco de dados. Estado inicial.} 
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_three/2-1.png} 
+    \caption{Terceiro banco de dados. 250.000 passos.} 
+    \vspace{4ex}
+  \end{minipage} 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_three/2-2.png} 
+    \caption{Terceiro banco de dados. 500.000 passos.} 
+    \vspace{4ex}
+  \end{minipage}%% 
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{resultados/data/dataset_three/2-3.png} 
+    \caption{Terceiro banco de dados. 750.000 passos.} 
+    \vspace{4ex}
+  \end{minipage}
+\end{figure}
+
+No terceiro \textit{dataset} (Figura~\ref{fig:dataset_three}), o resultado foi ótimo. Nenhum elemento estava dentro de um grupo errado. Ressalta-se que este teste era o mais complexo, com 600 elementos e 15 grupos.
+As constantes utilizadas foram $alpha=1.2$, $k_1 = 0.3$, $k_2 = 0.6$ e $R=2$.
+
+Não houve, dentre os 3 datasets testados, diferença significativa de desempenho. A média de tempo de execução para 750.000 passos usando $R=2$ é 1min 24.304seg, variando em média 5.326seg de suas extremidades, provavelmente ocorridas pela concorrência de recursos do sistema operacional, como a escrita de arquivos das imagens e gerenciamento das threads.
+
+\section{Conclusão}
+
+Os testes descritos a cima mostram a eficiência de tal sistema para agrupar dados conforme suas categorias. Tal modelagem tem aplicações diretas para utilizar como um sistema de classificação ou análise de dados, como uma base para um sistema de recomendações por exemplo.
+
 
 \begin{thebibliography}{00}
 \bibitem{b1} O. A. Mohamed Jafar, R. Sivakumar, ``Ant-based Clustering Algorithms: A Brief 
