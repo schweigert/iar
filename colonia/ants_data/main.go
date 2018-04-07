@@ -24,6 +24,11 @@ import (
 // CONST_K1 = 1.0 // GET
 // CONST_K2 = 1.0 // PUT
 
+// One:
+// CONST_ALPHA = 6.5
+// CONST_K1 = 0.75 // GET
+// CONST_K2 = 2.5 // PUT
+
 const (
   CONST_R = 2
   CONST_GROUPS = 3
