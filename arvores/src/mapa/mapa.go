@@ -21,6 +21,17 @@ func NewMapa(size_x, size_y uint) *Mapa {
   }
 }
 
+func (m *Mapa) Custo(x, y int) uint {
+  custos := [4]uint{1, 5, 10, 15}
+
+  return custos[m.grid[y][x]]
+}
+
+/*
+ * Private
+ * Methods
+*/
+
 func create_map_mask(size_x, size_y uint, def bool) [][]bool {
   grid := make([][]bool, size_y)
 

@@ -32,21 +32,24 @@ func (m *Mapa) DesenharImagem(nome_arquivo string) {
   png.Encode(f, img)
 }
 
-func (m *Mapa) Custo(x, y int) uint {
-  custos := [4]uint{1, 5, 10, 15}
-
-  return custos[m.grid[y][x]]
-}
-
-func (m *Mapa) AtualizarCustos() {}
-
 func (m *Mapa) PegarCorDaPosicao(x, y int) color.RGBA {
-  cores := [4]color.RGBA{
+  cores_base := [4]color.RGBA{
     color.RGBA{55, 180, 55, 255},
     color.RGBA{100, 55, 10, 255},
     color.RGBA{0, 120, 255, 255},
     color.RGBA{255, 0, 0, 255},
   }
 
-  return cores[m.grid[y][x]]
+  cores_visited := [4]color.RGBA{
+    color.RGBA{55/2, 180/2, 55/2, 255},
+    color.RGBA{100/2, 55/2, 10/2, 255},
+    color.RGBA{0, 120/2, 255/2, 255},
+    color.RGBA{255/2, 0, 0, 255},
+  }
+
+  if m.visited[y][x] {
+    return cores_visited[m.grid[y][x]]
+  }
+
+  return cores_base[m.grid[y][x]]
 }
