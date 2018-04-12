@@ -1,7 +1,6 @@
 package main
 
 import (
-  "fmt"
   "mapa"
 )
 
@@ -11,5 +10,7 @@ const (
 )
 
 func main() {
-  fmt.Println(mapa.NewMapa(MAPA_X, MAPA_Y))
+  mapa_atual := mapa.NewMapa(MAPA_X, MAPA_Y)
+  mapa_atual.Imprimir()
+  mapa_atual.DesenharImagem("Teste")
 }
