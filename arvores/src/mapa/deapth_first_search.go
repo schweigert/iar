@@ -1,56 +1,64 @@
 package mapa
 
 import (
-  "math"
-  "strconv"
+  "fmt"
 )
 
-var img_n int = 0
-
-
-func (m *Mapa) BuscaEmProfundidade(start_x, start_y, end_x, end_y int) float64 {
-  img_n ++
-
-  if start_x == end_x && start_y == end_y {
-    return float64(m.Custo(start_x, start_y))
-  }
-
+func (m *Mapa) BuscaEmProfundidade(start_x, start_y, end_x, end_y int) (uint, *Estado) {
+  fmt.Println(start_x, start_y)
   if start_x >= int(m.size_x) || start_y >= int(m.size_y) || start_x < 0 || start_y < 0 {
-    return math.NaN()
+    return 100, nil
   }
 
   if m.visited[start_y][start_x] {
-    return math.NaN()
+    return 100, nil
   }
 
   m.visited[start_y][start_x] = true
 
-  if img_n % 100 == 0 {
-    m.DesenharImagem(strconv.Itoa(img_n))
+  if start_x == end_x && start_y == end_y {
+    return m.Custo(start_x, start_y), NewEstado(uint(start_x), uint(start_y))
   }
 
-  custo_norte := m.BuscaEmProfundidade(start_x, start_y + 1, end_x, end_y)
-  custo_leste := m.BuscaEmProfundidade(start_x - 1, start_y, end_x, end_y)
-  custo_sul   := m.BuscaEmProfundidade(start_x, start_y - 1, end_x, end_y)
-  custo_oeste := m.BuscaEmProfundidade(start_x + 1, start_y, end_x, end_y)
+  estado := NewEstado(uint(start_x), uint(start_y))
 
-  if !math.IsNaN(custo_norte) {
-    if custo_norte <= custo_leste && custo_norte <= custo_sul && custo_norte <= custo_oeste {
-      return custo_norte
+  c_norte, e_norte := m.BuscaEmProfundidade(start_x, start_y + 1, end_x, end_y)
+  c_leste, e_leste := m.BuscaEmProfundidade(start_x - 1, start_y, end_x, end_y)
+  c_sul, e_sul     := m.BuscaEmProfundidade(start_x, start_y - 1, end_x, end_y)
+  c_oeste, e_oeste := m.BuscaEmProfundidade(start_x + 1, start_y, end_x, end_y)
+
+  custos := []uint{
+    c_norte,
+    c_leste,
+    c_sul,
+    c_oeste,
+  }
+
+  estado.norte = e_norte
+  estado.leste = e_leste
+  estado.oeste = e_oeste
+  estado.sul = e_sul
+
+  return custo_minimo(custos), estado
+}
+
+func custo_minimo(values []uint) uint {
+  if len(values) == 1 {
+    return values[0]
+  }
+
+  if len(values) == 2 {
+    if values[0] < values[1] {
+      return values[0]
     }
+    return values[1]
   }
 
-  if !math.IsNaN(custo_leste) {
-    if custo_leste <= custo_norte && custo_leste <= custo_sul && custo_leste <= custo_oeste {
-      return custo_leste
-    }
+  h, hs := values[0], custo_minimo(values[1:len(values)])
+
+  if h < hs {
+    return h
   }
 
-  if !math.IsNaN(custo_sul) {
-    if custo_sul <= custo_norte && custo_sul <= custo_leste && custo_sul <= custo_oeste {
-      return custo_sul
-    }
-  }
-
-  return custo_oeste
+  return hs
 }

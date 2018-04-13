@@ -2,6 +2,7 @@ package main
 
 import (
   "mapa"
+  "fmt"
 )
 
 const (
@@ -18,5 +19,6 @@ func main() {
   mapa_atual.Imprimir()
   mapa_atual.DesenharImagem("Teste")
 
-  mapa_atual.BuscaEmProfundidade(START_X, START_Y, END_X, END_Y)
+  custo, estados := mapa_atual.BuscaEmProfundidade(START_X, START_Y, END_X, END_Y)
+  fmt.Println(custo, estados)
 }
