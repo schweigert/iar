@@ -21,8 +21,8 @@ func NewMapa(size_x, size_y uint) *Mapa {
   }
 }
 
-func (m *Mapa) Custo(x, y int) uint {
-  custos := [4]uint{1, 5, 10, 15}
+func (m *Mapa) Custo(x, y int) int {
+  custos := [4]int{1, 5, 10, 15}
 
   return custos[m.grid[y][x]]
 }
