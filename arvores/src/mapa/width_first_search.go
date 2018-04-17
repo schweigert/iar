@@ -1,10 +1,5 @@
 package mapa
 
-import (
-  "strconv"
-)
-
-
 func (m *Mapa) BuscaEmLargura(start_x, start_y, end_x, end_y int) (int, *Estado) {
   e_inicial := NewEstado(uint(start_x), uint(start_y))
   e_final := NewEstado(uint(end_x), uint(end_y))
@@ -28,11 +23,11 @@ func (m *Mapa) sub_busca_em_largura(e_iniciais []*Estado, e_final *Estado) (int,
 
     if m.pode_visitar(x - 1, y) {
       m.visited[y][x] = true
-      e_norte := NewEstado(x - 1, y)
+      e_norte := NewEstado(uint(x - 1), uint(y))
       e_atual.norte = e_norte
 
       if e_norte.e_final(e_final) {
-        return
+        return 0, nil
       }
 
       estados_alcancados = append(estados_alcancados, e_norte)
