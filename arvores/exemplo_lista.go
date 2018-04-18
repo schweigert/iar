@@ -19,3 +19,24 @@ func main() {
 func printSlice(s []int) {
 	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
 }
+
+// package main
+//
+// import (
+// 	"fmt"
+// )
+//
+// func main() {
+// 	a := []int{1,2,3}
+// 	var b int
+//
+// 	b, a = a[0], a[1:]
+//
+// 	fmt.Println(a, b)
+//
+// 	a = append(a, b)
+//
+// 	fmt.Println(a, b)
+// [2 3] 1
+// [2 3 1] 1
+// }

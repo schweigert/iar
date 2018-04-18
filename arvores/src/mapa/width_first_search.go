@@ -1,50 +1,33 @@
 package mapa
 
+import (
+  "fmt"
+)
+
 func (m *Mapa) BuscaEmLargura(start_x, start_y, end_x, end_y int) (int, *Estado) {
   e_inicial := NewEstado(uint(start_x), uint(start_y))
   e_final := NewEstado(uint(end_x), uint(end_y))
 
-  return m.sub_busca_em_largura([]*Estado{e_inicial}, e_final)
+  return -1, m.sub_busca_em_largura([]*Estado{e_inicial}, e_final)
 }
 
-func (m *Mapa) sub_busca_em_largura(e_iniciais []*Estado, e_final *Estado) (int, *Estado) {
-
-  estados_alcancados := []*Estado{}
-
+func (m *Mapa) sub_busca_em_largura(e_iniciais []*Estado, e_final *Estado) (*Estado) {
   if len(e_iniciais) == 0 {
-    return 0, nil
+    return nil
   }
 
-  for i := range e_iniciais {
-    e_atual := e_iniciais[i]
+  e_inicial := e_iniciais[0]
 
-    x := int(e_atual.pos_x)
-    y := int(e_atual.pos_y)
+  for ; len(e_iniciais) == 0; {
+    var estado_atual *Estado
+    // pop
+    estado_atual, e_iniciais = e_iniciais[0], e_iniciais[1:]
 
-    if m.pode_visitar(x - 1, y) {
-      m.visited[y][x] = true
-      e_norte := NewEstado(uint(x - 1), uint(y))
-      e_atual.norte = e_norte
+    // Norte
+    if estado_atual.pos_x >= 0 || estado_atual.pos_y >= 0 || estado_atual.pos_x >= int(m.size_x) || estado_atual.pos_y >= int(m.size_y)
 
-      if e_norte.e_final(e_final) {
-        return 0, nil
-      }
-
-      estados_alcancados = append(estados_alcancados, e_norte)
-    }
+    fmt.Println(estado_atual)
   }
 
-  return 0, nil
-}
-
-func (m *Mapa) pode_visitar(x, y int) bool {
-  if x >= int(m.size_x) || y >= int(m.size_y) || x < 0 || y < 0 {
-    return false
-  }
-
-  if m.visited[y][x] {
-    return false
-  }
-
-  return true
+  return e_inicial
 }
