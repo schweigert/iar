@@ -4,7 +4,7 @@ import (
   "strconv"
 )
 
-var frame_profundidade int
+var frame int
 
 const (
   INITIAL_FRAME = 1000000
@@ -27,10 +27,10 @@ func (m *Mapa) BuscaEmProfundidade(start_x, start_y, end_x, end_y int) (int, *Es
 
   estado := NewEstado(uint(start_x), uint(start_y))
 
-  if frame_profundidade % 100 == 0 {
-    m.DesenharImagem(strconv.Itoa(INITIAL_FRAME + frame_profundidade))
+  if frame % 100 == 0 {
+    m.DesenharImagem(strconv.Itoa(INITIAL_FRAME + frame))
   }
-  frame_profundidade++
+  frame++
 
   c_norte, e_norte := m.BuscaEmProfundidade(start_x, start_y - 1, end_x, end_y)
   estado.norte = e_norte
