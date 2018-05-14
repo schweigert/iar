@@ -1,0 +1,183 @@
+package main
+
+import (
+  "os"
+  "fmt"
+  "time"
+  "strconv"
+  "strings"
+  "math/rand"
+)
+
+const (
+  CONST_FILE_NAME = "250-1065.cnf"
+  CONST_CLAUSES = 1065
+  CONST_VARS = 250
+)
+
+type SAT3Instance struct {
+  clauses int
+  expression [CONST_CLAUSES][3]int
+  initial_set [CONST_VARS]bool
+  final_set [CONST_VARS]bool
+  work_set [CONST_VARS]bool
+}
+
+func NewSAT3Instance() *SAT3Instance {
+  sat3 := &SAT3Instance {
+    clauses: CONST_CLAUSES,
+  }
+
+  sat3.ReadExpression()
+  sat3.RandomizeInitialInstance()
+
+  return sat3
+}
+
+func (sat3 *SAT3Instance) RandomizeInitialInstance() {
+  seed := rand.NewSource(time.Now().UnixNano())
+  randomizer := rand.New(seed)
+
+  fmt.Println("Initial Set:")
+
+  for i := range(sat3.initial_set) {
+    sat3.initial_set[i] = randomizer.Float64() > 0.50
+    fmt.Printf("Set[%d]: %t\n", i, sat3.initial_set[i])
+  }
+}
+
+func (sat3 *SAT3Instance) ReadExpression() {
+  file, err := os.Open(CONST_FILE_NAME)
+
+  if err != nil {
+      panic(err)
+  }
+
+  defer file.Close()
+
+  fmt.Println("Expression:")
+
+  for i := range(sat3.expression) {
+    var a, b, c, e int
+    fmt.Fscanf(file, "%d %d %d %d",&a, &b, &c, &e)
+
+    sat3.expression[i][0] = a
+    sat3.expression[i][1] = b
+    sat3.expression[i][2] = c
+
+    if i == 0 {
+      fmt.Printf(
+        "  (\t%s\t v \t%s\t v \t%s\t)\n",
+        strings.Replace(strconv.Itoa(a), "-", "¬", -1),
+        strings.Replace(strconv.Itoa(b), "-", "¬", -1),
+        strings.Replace(strconv.Itoa(c), "-", "¬", -1),
+      )
+    } else {
+      fmt.Printf(
+        "^ (\t%s\t v \t%s\t v \t%s\t)\n",
+        strings.Replace(strconv.Itoa(a), "-", "¬", -1),
+        strings.Replace(strconv.Itoa(b), "-", "¬", -1),
+        strings.Replace(strconv.Itoa(c), "-", "¬", -1),
+      )
+    }
+  }
+}
+
+func (sat3 *SAT3Instance) WorkScore() int {
+  var score int
+
+  for i := range(sat3.expression){
+    a := sat3.expression[i][0]
+    b := sat3.expression[i][1]
+    c := sat3.expression[i][2]
+
+    a_negative := a < 0
+    b_negative := b < 0
+    c_negative := c < 0
+
+    if a_negative {
+      a *= -1
+    }
+
+    if b_negative {
+      b *= -1
+    }
+
+    if c_negative {
+      c *= -1
+    }
+
+    a--
+    b--
+    c--
+
+    a_bool := sat3.work_set[a]
+    b_bool := sat3.work_set[b]
+    c_bool := sat3.work_set[c]
+
+    if a_negative {
+      a_bool = !a_bool
+    }
+
+    if b_negative {
+      b_bool = !b_bool
+    }
+
+    if c_negative {
+      c_bool = !c_bool
+    }
+
+    if a_bool || b_bool || c_bool {
+      score++
+    }
+  }
+
+  return score
+}
+
+func (sat3 *SAT3Instance) CopyToWork() {
+  for i := range(sat3.initial_set) {
+    sat3.work_set[i] = sat3.initial_set[i]
+  }
+}
+
+func (sat3 *SAT3Instance) CopyToFinal() {
+  for i := range(sat3.work_set) {
+    sat3.final_set[i] = sat3.work_set[i]
+  }
+}
+
+func (sat3 *SAT3Instance) RandomSearch(interations int) int {
+  // Copy initial to work_set
+  sat3.CopyToWork()
+  sat3.CopyToFinal()
+  score := sat3.WorkScore()
+
+  for i := 0; i < interations; i++ {
+    sat3.NewRandomWorkSet()
+    new_score := sat3.WorkScore()
+
+    if new_score > score {
+      sat3.CopyToFinal()
+      score = new_score
+      fmt.Println("[", i, "] New best score: ", score)
+    }
+  }
+
+  return score
+}
+
+func (sat3 *SAT3Instance) NewRandomWorkSet() {
+  seed := rand.NewSource(time.Now().UnixNano())
+  randomizer := rand.New(seed)
+
+  for i := range(sat3.initial_set) {
+    sat3.work_set[i] = randomizer.Float64() > 0.50
+  }
+}
+
+func main() {
+  sat3 := NewSAT3Instance()
+  fmt.Println(sat3.RandomSearch(250000))
+  fmt.Println(sat3.final_set)
+}
