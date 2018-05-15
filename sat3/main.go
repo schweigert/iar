@@ -10,9 +10,9 @@ import (
 )
 
 const (
-  CONST_FILE_NAME = "250-1065.cnf"
-  CONST_CLAUSES = 1065
-  CONST_VARS = 250
+  CONST_FILE_NAME = "20-91.cnf"
+  CONST_CLAUSES = 20
+  CONST_VARS = 91
 )
 
 type SAT3Instance struct {
@@ -21,11 +21,14 @@ type SAT3Instance struct {
   initial_set [CONST_VARS]bool
   final_set [CONST_VARS]bool
   work_set [CONST_VARS]bool
+  randomizer *rand.Rand
 }
 
 func NewSAT3Instance() *SAT3Instance {
+  seed := rand.NewSource(time.Now().UnixNano())
   sat3 := &SAT3Instance {
     clauses: CONST_CLAUSES,
+    randomizer: rand.New(seed),
   }
 
   sat3.ReadExpression()
@@ -147,8 +150,13 @@ func (sat3 *SAT3Instance) CopyToFinal() {
   }
 }
 
+func (sat3 *SAT3Instance) CopyFinalToWork() {
+  for i := range(sat3.work_set) {
+    sat3.work_set[i] = sat3.final_set[i]
+  }
+}
+
 func (sat3 *SAT3Instance) RandomSearch(interations int) int {
-  // Copy initial to work_set
   sat3.CopyToWork()
   sat3.CopyToFinal()
   score := sat3.WorkScore()
@@ -167,6 +175,51 @@ func (sat3 *SAT3Instance) RandomSearch(interations int) int {
   return score
 }
 
+func (sat3 *SAT3Instance) SimulatedAnnealingSearch(interations int) int {
+  sat3.CopyToWork()
+  sat3.CopyToFinal()
+  score := sat3.WorkScore()
+
+  for i := 0; i < interations; i++ {
+    energy := sat3.SimulatedAnnealingEnergy(i, interations)
+    sat3.NewSimulatedAnnealingWorkSet(energy)
+    new_score := sat3.WorkScore()
+
+    if SimulatedAnnealingRange(energy, score, new_score) {
+      sat3.CopyToFinal()
+      score = new_score
+      fmt.Println("[", i, "] New score: ", score)
+    }
+
+    sat3.CopyFinalToWork()
+  }
+
+  return score
+}
+
+func SimulatedAnnealingRange(energy float64, score, new_score int) bool {
+  return float64(new_score) * (1 + energy * 0.3) > float64(score) || new_score > score
+}
+
+func (sat3 *SAT3Instance) NewSimulatedAnnealingWorkSet(energy float64) {
+  set_len := len(sat3.work_set)
+  edit := int(float64(set_len) * energy)
+
+  if edit <= 1 {
+    edit = 1
+  }
+
+  for i := 0; i < edit; i++ {
+    local := sat3.randomizer.Intn(set_len)
+
+    sat3.work_set[local] = !sat3.work_set[local]
+  }
+}
+
+func (sat3 *SAT3Instance) SimulatedAnnealingEnergy(interation, interations int) float64 {
+  return 1.0 - (float64(interation) / float64(interations)) * (float64(interation) / float64(interations))
+}
+
 func (sat3 *SAT3Instance) NewRandomWorkSet() {
   seed := rand.NewSource(time.Now().UnixNano())
   randomizer := rand.New(seed)
@@ -178,6 +231,8 @@ func (sat3 *SAT3Instance) NewRandomWorkSet() {
 
 func main() {
   sat3 := NewSAT3Instance()
+  fmt.Println(sat3.SimulatedAnnealingSearch(250000))
+  fmt.Println(sat3.final_set)
   fmt.Println(sat3.RandomSearch(250000))
   fmt.Println(sat3.final_set)
 }
