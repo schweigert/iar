@@ -7,12 +7,22 @@ import (
   "strconv"
   "strings"
   "math/rand"
+  "github.com/Arafatk/glot"
 )
 
 const (
   CONST_FILE_NAME = "20-91.cnf"
-  CONST_CLAUSES = 20
-  CONST_VARS = 91
+  CONST_CLAUSES = 91
+  CONST_VARS = 20
+  CONST_INTERATIONS = 100000
+  CONST_TESTS = 10
+)
+
+var (
+  glot_spaces [CONST_INTERATIONS]float64
+  glot_temperature [CONST_INTERATIONS]float64
+  glot_energy [CONST_INTERATIONS]float64
+  glot_i int
 )
 
 type SAT3Instance struct {
@@ -176,48 +186,62 @@ func (sat3 *SAT3Instance) RandomSearch(interations int) int {
 }
 
 func (sat3 *SAT3Instance) SimulatedAnnealingSearch(interations int) int {
+  glot_i = 0
+
   sat3.CopyToWork()
   sat3.CopyToFinal()
-  score := sat3.WorkScore()
+  energy := sat3.WorkScore()
 
   for i := 0; i < interations; i++ {
-    energy := sat3.SimulatedAnnealingEnergy(i, interations)
-    sat3.NewSimulatedAnnealingWorkSet(energy)
-    new_score := sat3.WorkScore()
+    temperature := sat3.SimulatedAnnealingTemperature(i, interations)
 
-    if SimulatedAnnealingRange(energy, score, new_score) {
+    glot_spaces[glot_i] = float64(i) / float64(interations)
+    glot_temperature[glot_i] = temperature
+
+    sat3.NewSimulatedAnnealingWorkSet()
+    new_energy := sat3.WorkScore()
+
+    if sat3.SimulatedAnnealingRange(temperature, energy, new_energy) {
       sat3.CopyToFinal()
-      score = new_score
-      fmt.Println("[", i, "] New score: ", score)
+      if new_energy != energy {
+        // fmt.Println("[", i, "] New energy: ", new_energy)
+      }
+      energy = new_energy
     }
 
+    glot_energy[glot_i] += float64(energy) / CONST_TESTS
+
+
     sat3.CopyFinalToWork()
+
+    glot_i++
   }
 
-  return score
+  return energy
 }
 
-func SimulatedAnnealingRange(energy float64, score, new_score int) bool {
-  return float64(new_score) * (1 + energy * 0.3) > float64(score) || new_score > score
-}
-
-func (sat3 *SAT3Instance) NewSimulatedAnnealingWorkSet(energy float64) {
-  set_len := len(sat3.work_set)
-  edit := int(float64(set_len) * energy)
-
-  if edit <= 1 {
-    edit = 1
+func (sat3 *SAT3Instance) SimulatedAnnealingRange(energy float64, score, new_score int) bool {
+  if new_score > score {
+    return true
   }
 
-  for i := 0; i < edit; i++ {
-    local := sat3.randomizer.Intn(set_len)
+  r := score - new_score
 
-    sat3.work_set[local] = !sat3.work_set[local]
+  if float64(r) <= float64(score) * energy {
+    return true
   }
+  return false
 }
 
-func (sat3 *SAT3Instance) SimulatedAnnealingEnergy(interation, interations int) float64 {
-  return 1.0 - (float64(interation) / float64(interations)) * (float64(interation) / float64(interations))
+func (sat3 *SAT3Instance) NewSimulatedAnnealingWorkSet() {
+  local := sat3.randomizer.Intn(len(sat3.work_set))
+
+  sat3.work_set[local] = !sat3.work_set[local]
+}
+
+func (sat3 *SAT3Instance) SimulatedAnnealingTemperature(interation, interations int) float64 {
+  t := (1 - float64(interation) / float64(interations))
+  return t * t * t * t * t * t * t * t * t * t * t * t
 }
 
 func (sat3 *SAT3Instance) NewRandomWorkSet() {
@@ -229,10 +253,41 @@ func (sat3 *SAT3Instance) NewRandomWorkSet() {
   }
 }
 
+func print_with_glot() {
+  // Plot Energy
+  dimensions := 2
+  persist := false
+  debug := false
+  plot, _ := glot.NewPlot(dimensions, persist, debug)
+  pointGroupName := "Temperature"
+  style := "lines"
+  points := [][]float64{glot_spaces[:], glot_temperature[:]}
+
+  plot.AddPointGroup(pointGroupName, style, points)
+  plot.SetTitle("Energy SAT3")
+  plot.SetXLabel("Time")
+  plot.SetYLabel("Temperature")
+  plot.SavePlot("temperature.png")
+
+  // Plot convergance
+  plot, _ = glot.NewPlot(dimensions, persist, debug)
+  pointGroupName = "Simulated Annealing"
+  style = "lines"
+  points = [][]float64{glot_spaces[:], glot_energy[:]}
+
+  plot.AddPointGroup(pointGroupName, style, points)
+  plot.SetTitle("Energy SAT3")
+  plot.SetXLabel("Time")
+  plot.SetYLabel("Energy")
+  plot.SavePlot("convergence.png")
+}
+
 func main() {
   sat3 := NewSAT3Instance()
-  fmt.Println(sat3.SimulatedAnnealingSearch(250000))
-  fmt.Println(sat3.final_set)
-  fmt.Println(sat3.RandomSearch(250000))
-  fmt.Println(sat3.final_set)
+  for i := 0; i < 10; i++ {
+    fmt.Println(sat3.SimulatedAnnealingSearch(CONST_INTERATIONS))
+    // fmt.Println(sat3.RandomSearch(CONST_INTERATIONS))
+  }
+
+  print_with_glot()
 }
