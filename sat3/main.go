@@ -11,10 +11,10 @@ import (
 )
 
 const (
-  CONST_FILE_NAME = "20-91.cnf"
-  CONST_CLAUSES = 91
-  CONST_VARS = 20
-  CONST_INTERATIONS = 100000
+  CONST_FILE_NAME = "250-1065.cnf"
+  CONST_CLAUSES = 1065
+  CONST_VARS = 250
+  CONST_INTERATIONS = 250000
   CONST_TESTS = 10
 )
 
@@ -175,14 +175,25 @@ func (sat3 *SAT3Instance) RandomSearch(interations int) int {
     sat3.NewRandomWorkSet()
     new_score := sat3.WorkScore()
 
+    glot_spaces[i] = float64(i) / float64(interations)
+    glot_energy[i] += float64(new_score) / CONST_TESTS
+
     if new_score > score {
       sat3.CopyToFinal()
       score = new_score
-      fmt.Println("[", i, "] New best score: ", score)
     }
   }
 
   return score
+}
+
+func (sat3 *SAT3Instance) NewRandomWorkSet() {
+  seed := rand.NewSource(time.Now().UnixNano())
+  randomizer := rand.New(seed)
+
+  for i := range(sat3.initial_set) {
+    sat3.work_set[i] = randomizer.Float64() > 0.50
+  }
 }
 
 func (sat3 *SAT3Instance) SimulatedAnnealingSearch(interations int) int {
@@ -244,15 +255,6 @@ func (sat3 *SAT3Instance) SimulatedAnnealingTemperature(interation, interations 
   return t * t * t * t * t * t * t * t * t * t * t * t
 }
 
-func (sat3 *SAT3Instance) NewRandomWorkSet() {
-  seed := rand.NewSource(time.Now().UnixNano())
-  randomizer := rand.New(seed)
-
-  for i := range(sat3.initial_set) {
-    sat3.work_set[i] = randomizer.Float64() > 0.50
-  }
-}
-
 func print_with_glot() {
   // Plot Energy
   dimensions := 2
@@ -282,12 +284,40 @@ func print_with_glot() {
   plot.SavePlot("convergence.png")
 }
 
+
+func print_with_glot_random() {
+  dimensions := 2
+  persist := false
+  debug := false
+  plot, _ := glot.NewPlot(dimensions, persist, debug)
+  pointGroupName := "Random Search"
+  style := "points"
+  points := [][]float64{glot_spaces[:], glot_energy[:]}
+
+  plot.AddPointGroup(pointGroupName, style, points)
+  plot.SetTitle("Score SAT3")
+  plot.SetXLabel("Time")
+  plot.SetYLabel("Score")
+  plot.SavePlot("random_convergence.png")
+}
+
 func main() {
   sat3 := NewSAT3Instance()
+
+  fmt.Println("SimulatedAnnealingSearch tests:")
   for i := 0; i < 10; i++ {
     fmt.Println(sat3.SimulatedAnnealingSearch(CONST_INTERATIONS))
-    // fmt.Println(sat3.RandomSearch(CONST_INTERATIONS))
+  }
+  print_with_glot()
+
+  for i := range(glot_energy) {
+    glot_energy[i] = 0.0
   }
 
-  print_with_glot()
+  fmt.Println("RandomSearch tests:")
+  for i := 0; i < 10; i++ {
+    fmt.Println(sat3.RandomSearch(CONST_INTERATIONS))
+  }
+
+  print_with_glot_random()
 }
